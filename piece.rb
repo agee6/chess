@@ -1,6 +1,9 @@
 
 class Piece
 
+  attr_accessor :pos
+  attr_reader :color
+
   def initialize(color, grid, pos)
     @color = color
     @grid = grid
@@ -13,8 +16,19 @@ class Piece
 
   def valid_move?(move)
     x, y = move
+    return true if @grid[x][y] == nil
     return false if @grid[x][y].color == @color
-    return true
+    true
+  end
+
+  def kills?(position)
+    x,y = position
+
+    if @grid[x][y]
+      return true if @grid[x][y].color != @color
+    end
+    false
+
   end
 
   def inbounds?(move)
@@ -25,42 +39,6 @@ class Piece
 
   def change_position(move)
     @pos = move
-  end
-
-
-  def to_s(id, color)
-    if color == "white"
-
-      case id
-      when "rook"
-        " ♖ "
-      when "knight"
-        " ♘ "
-      when "bishop"
-        " ♗ "
-      when "queen"
-        " ♕ "
-      when "king"
-        " ♔ "
-      when "pawn"
-        " ♙ "
-      end
-    else
-      case id
-      when "rook"
-        " ♜ "
-      when "knight"
-        " ♞ "
-      when "bishop"
-        " ♝ "
-      when "queen"
-        " ♛ "
-      when "king"
-        " ♚ "
-      when "pawn"
-        " ♟ "
-      end
-    end
   end
 
 end

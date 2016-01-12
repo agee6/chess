@@ -32,16 +32,28 @@ class Display
     if [i, j] == @cursor_pos
       bg = :light_red
     elsif (i + j).odd?
-      bg = :light_black
+      bg = :brown
     else
-      bg = :light_white
+      bg = :black
     end
-    { background: bg, color: :magenta }
+    { background: bg, color: :white }
   end
 
   def render
     system("clear")
     puts "Arrow keys or WASD to move, space or enter to confirm."
+
     build_grid.each { |row| puts row.join }
+  end
+
+  def get_move(color)
+    result = nil
+    until result
+      render
+      puts "#{color}'s move"
+      result = get_input
+    end
+
+    result
   end
 end
