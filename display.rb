@@ -51,6 +51,7 @@ class Display
     until result
       render
       puts "#{color}'s move"
+      # puts "#{color} is in check!" if @board.check?(color)
       result = get_input
     end
 

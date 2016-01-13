@@ -9,14 +9,15 @@ require_relative 'knight'
 require_relative 'king'
 require_relative 'queen'
 
+# require 'byebug'
 
 class Board
 
   attr_accessor :grid
 
-  def initialize
+  def initialize(populate = true)
     @grid = Array.new(8) {Array.new(8)}
-    populate_grid
+    populate_grid if populate
   end
 
   def populate_grid
@@ -56,15 +57,91 @@ class Board
     raise ArgumentError unless possible_moves.include?(end_pos)
 
     end_row, end_col = end_pos
+    if moved_into_check?(moving_piece, end_pos)
+      puts "can't move into check!!"
+      sleep(5)
+     raise ArgumentError.new("Cannot move into check.")
+   end
+
     @grid[end_row][end_col] = moving_piece
+
     moving_piece.pos = end_pos
     @grid[start_row][start_col] = nil
   end
 
+  def moved_into_check?(moving_piece, end_pos)
+    p moving_piece.pos
+    dup_board = self.dup
+    dup_board.move!(moving_piece.pos, end_pos)
+    dup_board.check?(moving_piece.color)
+  end
+
+  def dup
+    dup_board = Board.new(false)
+    @grid.each_index do |row|
+      @grid[row].each_with_index do |piece, col|
+        if piece.nil?
+          dup_board.grid[row][col] = nil
+        else
+          dup_board.grid[row][col] = piece.dup
+        end
+      end
+    end
+    dup_board
+    # debugger
+  end
+
+  def move!(start_pos, end_pos)
+    xstart, ystart = start_pos
+    moved_piece = @grid[xstart][ystart]
+    xend, yend = end_pos
+    @grid[xend][yend] = moved_piece
+    moved_piece.pos = end_pos
+    @grid[xstart][ystart] = nil
+    p @grid[xstart][ystart]
+    #puts moved_piece.pos
+    #sleep(5)
+
+  end
+
+# pass in current_player color
+  def check?(color)
+    opposing_pieces = []
+    king_piece = nil
+    @grid.each do |row|
+      row.each do |piece|
+        if piece
+          king_piece = piece if piece.is_a?(King) && piece.color == color
+          opposing_pieces << piece if piece.color != color
+        end
+      end
+    end
+    # debugger
+    piece_truth = false
+    opposing_pieces.each do |piece|
+      piece_truth = true if piece.possible_moves.include?(king_piece.pos)
+      if piece.is_a?(Queen)
+        puts "checking queen!"
+        puts "color is #{piece.color}"
+        puts "possible moves: #{piece.possible_moves}"
+        puts "piece_truth is #{piece_truth}"
+      end
+      #return piece_truth if piece_truth
+      #return true if piece.possible_moves.include?(king_piece.pos)
+    end
+    #debugger
+    piece_truth
+    #false
+  end
+
+
+
   def in_bounds?(move)
     x, y = move
-    return true if x.between?(0, 7) && y.between?(0, 7)
-    false
+    # return true if x.between?(0, 7) && y.between?(0, 7)
+    # false
+
+    x.between?(0, 7) && y.between?(0, 7)
   end
 
 end
